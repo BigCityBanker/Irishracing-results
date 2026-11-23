@@ -1,0 +1,34 @@
+name: Fetch IrishRacing results
+
+on:
+  schedule:
+    - cron: "15 */6 * * *"   # every 6 hours; each run carries on where the last stopped
+  workflow_dispatch:
+    inputs:
+      test_only:
+        description: "Only run the one-page test (no database)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: scrape
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Test one page
+        run: python -m scraper.run --test
+      - name: Fetch results into Supabase
+        if: ${{ !inputs.test_only }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: python -m scraper.run --max-minutes 330
