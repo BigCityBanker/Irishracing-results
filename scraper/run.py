@@ -127,6 +127,10 @@ def run(max_minutes, start, end, redo_recent):
     for d in todo:
         if time.time() > deadline:
             print("Time budget used up; the next run carries on from here.")
+            out = os.environ.get("GITHUB_OUTPUT")
+            if out:
+                with open(out, "a") as fh:
+                    fh.write("more=true\n")
             break
         try:
             paths, items = scrape_day(f, d)

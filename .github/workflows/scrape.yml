@@ -10,6 +10,10 @@ on:
         type: boolean
         default: false
 
+permissions:
+  contents: read
+  actions: write
+
 concurrency:
   group: scrape
   cancel-in-progress: false
@@ -28,7 +32,13 @@ jobs:
       - name: Test one page
         run: python -m scraper.run --test
       - name: Fetch results into Supabase
+        id: fetch
         if: ${{ !inputs.test_only }}
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: python -m scraper.run --max-minutes 330
+      - name: Start the next run straight away if there is more to do
+        if: ${{ steps.fetch.outputs.more == 'true' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run scrape.yml --ref main -f test_only=false
