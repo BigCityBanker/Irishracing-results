@@ -68,7 +68,11 @@ def scrape_day(f, d):
     html = f.get(f"/raceresults/{parse.day_slug(d)}")
     if html is None:
         return [], []
-    paths = parse.parse_day(html, d)
+    all_paths = parse.parse_day(html, d)
+    paths = [p for p in all_paths if parse.is_uk_ire(p.split("/")[3])]
+    skipped = sorted({p.split("/")[3] for p in all_paths if p not in paths})
+    if skipped:
+        print(f"  {d}: skipping non-UK/IRE meetings: {', '.join(skipped)}", flush=True)
     out = []
     for p in paths:
         page = f.get(p)

@@ -21,6 +21,32 @@ IRISH_COURSES = {
 }
 
 
+GB_COURSES = {
+    "aintree", "ascot", "ayr", "bangorondee", "bath", "beverley", "brighton", "carlisle",
+    "cartmel", "catterick", "chelmsford", "chelmsfordcity", "cheltenham", "chepstow", "chester",
+    "doncaster", "epsom", "epsomdowns", "exeter", "fakenham", "ffoslas", "fontwell",
+    "fontwellpark", "goodwood", "greatyarmouth", "yarmouth", "hamilton", "hamiltonpark",
+    "haydock", "haydockpark", "hereford", "hexham", "huntingdon", "kelso", "kempton",
+    "kemptonpark", "leicester", "lingfield", "lingfieldpark", "ludlow", "marketrasen",
+    "musselburgh", "newbury", "newcastle", "newmarket", "newmarketjuly", "newmarketrowley",
+    "newtonabbot", "nottingham", "perth", "plumpton", "pontefract", "redcar", "ripon",
+    "salisbury", "sandown", "sandownpark", "sedgefield", "southwell", "stratford",
+    "stratfordonavon", "taunton", "thirsk", "uttoxeter", "warwick", "wetherby", "wincanton",
+    "windsor", "wolverhampton", "worcester", "york",
+}
+IRE_COURSES_NORM = {c.replace("-", "") for c in IRISH_COURSES} | {"thecurragh"}
+
+
+def course_key(slug):
+    return re.sub(r"[^a-z]", "", (slug or "").lower())
+
+
+def is_uk_ire(slug):
+    """True for British and Irish racecourses (point-to-points and overseas excluded)."""
+    k = course_key(slug)
+    return k in GB_COURSES or k in IRE_COURSES_NORM
+
+
 def ordinal(n):
     if 10 <= n % 100 <= 20:
         return f"{n}th"
